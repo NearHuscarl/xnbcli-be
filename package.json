@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "deploy": "git push heroku master",
+    "status": "heroku ps -a superfighters-deluxe",
+    "cronjob": "start chrome https://console.cron-job.org/jobs/3970767/history",
     "dev": "nodemon ./bin/www"
   },
   "dependencies": {
