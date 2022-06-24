@@ -77,25 +77,22 @@ const uploadUnpackedItem = multer({
   },
 });
 
-router.post(
-  "/packfile",
-  uploadUnpackedItem.single("unpackedItem"),
-  async (req, res, next) => {
-    const { originalname, filename } = req.file;
-    const basename = path.parse(filename).name;
-    const packedFile = basename + ".xnb";
+router.post("/packfile", async (req, res, next) => {
+  const sfdItem = req.body;
+  const basename = uniqueId();
+  const packedFileName = basename + ".xnb";
+  const packedPath = path.join(PACK_DIR, packedFileName);
+  const unpackedFileName = basename + ".sfditem";
+  const unpackedPath = path.join(UNPACK_DIR, unpackedFileName);
 
-    console.log(`packing ${originalname}...`);
-    await generateMetadataFile(basename);
-    await pack();
+  console.log(`packing ${sfdItem.id}...`);
+  await fse.writeJSON(unpackedPath, sfdItem, { spaces: 2 });
+  await generateMetadataFile(basename);
+  await pack();
 
-    res.download(
-      path.join(PACK_DIR, packedFile),
-      path.parse(originalname).name + ".xnb"
-    );
-    await cleanUpXnb(basename);
-  }
-);
+  res.download(packedPath, sfdItem.fileName + ".xnb");
+  await cleanUpXnb(basename);
+});
 
 const uploadPackedItem = multer({
   fileFilter: (req, file, cb) => {
