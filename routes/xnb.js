@@ -78,20 +78,24 @@ const uploadUnpackedItem = multer({
 });
 
 router.post("/packfile", async (req, res, next) => {
-  const sfdItem = req.body;
-  const basename = uniqueId();
-  const packedFileName = basename + ".xnb";
-  const packedPath = path.join(PACK_DIR, packedFileName);
-  const unpackedFileName = basename + ".sfditem";
-  const unpackedPath = path.join(UNPACK_DIR, unpackedFileName);
+  try {
+    const sfdItem = req.body;
+    const basename = uniqueId();
+    const packedFileName = basename + ".xnb";
+    const packedPath = path.join(PACK_DIR, packedFileName);
+    const unpackedFileName = basename + ".sfditem";
+    const unpackedPath = path.join(UNPACK_DIR, unpackedFileName);
 
-  console.log(`packing ${sfdItem.id}...`);
-  await fse.writeJSON(unpackedPath, sfdItem, { spaces: 2 });
-  await generateMetadataFile(basename);
-  await pack();
+    console.log(`packing ${sfdItem.id}...`);
+    await fse.writeJSON(unpackedPath, sfdItem, { spaces: 2 });
+    await generateMetadataFile(basename);
+    await pack();
 
-  res.download(packedPath, sfdItem.fileName + ".xnb");
-  await cleanUpXnb(basename);
+    res.download(packedPath, sfdItem.fileName + ".xnb");
+    await cleanUpXnb(basename);
+  } catch (e) {
+    next(e);
+  }
 });
 
 const uploadPackedItem = multer({
@@ -112,19 +116,23 @@ router.post(
   "/unpackfile",
   uploadPackedItem.single("packedItem"),
   async (req, res, next) => {
-    const { originalname, filename } = req.file;
+    try {
+      const { originalname, filename } = req.file;
 
-    console.log(`unpacking ${originalname}...`);
-    await unpack();
+      console.log(`unpacking ${originalname}...`);
+      await unpack();
 
-    const basename = path.parse(filename).name;
-    const unpackedFile = basename + ".sfditem";
+      const basename = path.parse(filename).name;
+      const unpackedFile = basename + ".sfditem";
 
-    res.download(
-      path.join(UNPACK_DIR, unpackedFile),
-      path.parse(originalname).name + ".sfditem"
-    );
-    await cleanUpXnb(basename);
+      res.download(
+        path.join(UNPACK_DIR, unpackedFile),
+        path.parse(originalname).name + ".sfditem"
+      );
+      await cleanUpXnb(basename);
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
@@ -132,20 +140,24 @@ router.post(
   "/unpack",
   uploadPackedItem.single("packedItem"),
   async (req, res, next) => {
-    const { originalname, filename } = req.file;
+    try {
+      const { originalname, filename } = req.file;
 
-    console.log(`unpacking ${originalname}...`);
-    await unpack();
+      console.log(`unpacking ${originalname}...`);
+      await unpack();
 
-    const basename = path.parse(filename).name;
-    const unpackedFile = basename + ".sfditem";
+      const basename = path.parse(filename).name;
+      const unpackedFile = basename + ".sfditem";
 
-    const result = await fse.readFile(
-      path.join(UNPACK_DIR, unpackedFile),
-      "utf8"
-    );
-    res.json({ result: JSON.parse(result) });
-    await cleanUpXnb(basename);
+      const result = await fse.readFile(
+        path.join(UNPACK_DIR, unpackedFile),
+        "utf8"
+      );
+      res.json({ result: JSON.parse(result) });
+      await cleanUpXnb(basename);
+    } catch (e) {
+      next(e);
+    }
   }
 );
 
