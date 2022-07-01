@@ -1,7 +1,7 @@
 const _cors = require("cors");
 
 const corsOptions = {
-  origin: ["https://superfighters.vercel.app", "http://localhost:3000"],
+  origin: ["https://superfighters.vercel.app", "http://localhost:3005"],
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
