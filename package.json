@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "deploy": "git push heroku master",
-    "status": "heroku ps -a superfighters-deluxe",
+    "status": "heroku ps -a superfighters-deluxe && heroku ps -a superfighters-deluxe-2",
     "cronjob": "start chrome https://console.cron-job.org/jobs/3970767/history",
     "dev": "nodemon ./bin/www"
   },
